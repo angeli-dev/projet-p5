@@ -6,11 +6,35 @@ var params = {
 gui.add(params, "Ellipse_Size", 0, 100, 1);
 gui.add(params, "Download_Image");
 function draw() {
-    background(0);
+    background("#495782");
+    fill("white");
+    noStroke();
     ellipse(mouseX, mouseY, params.Ellipse_Size);
 }
+var result;
+function preload() {
+    result = loadStrings('assets/liste_francais.txt');
+}
+var liste_mots = [];
+var liste_lettres = ["b", "c", "d", "l", "o", "p", "q"];
 function setup() {
     p6_CreateCanvas();
+    for (var _i = 0, result_1 = result; _i < result_1.length; _i++) {
+        var mot = result_1[_i];
+        var caracteres = mot.split("");
+        var drapeau = true;
+        for (var _a = 0, caracteres_1 = caracteres; _a < caracteres_1.length; _a++) {
+            var caractere = caracteres_1[_a];
+            if (liste_lettres.indexOf(caractere) == -1) {
+                drapeau = false;
+                break;
+            }
+        }
+        if (drapeau) {
+            liste_mots.push(mot);
+        }
+    }
+    console.log(liste_mots);
 }
 function windowResized() {
     p6_ResizeCanvas();
