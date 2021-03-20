@@ -7,12 +7,12 @@ const params = {
     //Ellipse_Size: 30,
     Download_Image: () => save(),
     Random_Seed: 0,
-    Nb_mots: 25
+    Nb_mots: 20
 }
 
 //gui.add(params, "Ellipse_Size", 0, 100, 1)
 gui.add(params, "Random_Seed", 0, 100, 1)
-gui.add(params, "Nb_mots", 0, 100, 1)
+gui.add(params, "Nb_mots", 0, 50, 1)
 gui.add(params, "Download_Image")
 
 // -------------------
@@ -61,10 +61,14 @@ function draw() {
 // -------------------
 //    Initialization
 // -------------------
-let result;
+let result_fr;
+let result_en;
+let result_it;
 let myFont;
 function preload() {
-    result = loadStrings('assets/liste_francais.txt');
+    result_fr = loadStrings('assets/liste_fr.txt');
+    result_en = loadStrings('assets/liste_en.txt');
+    result_it = loadStrings('assets/liste_en.txt');
     myFont = loadFont('assets/Helvetica.ttf');
 }
 
@@ -74,7 +78,9 @@ function setup() {
     p6_CreateCanvas();
 
     //créer liste de mots conrtenant les caractères
-    for (const mot of result) {
+
+    //mots français
+    for (const mot of result_fr) {
         let caracteres = mot.split("");
         let drapeau = true;
         for (const caractere of caracteres) {
@@ -88,6 +94,40 @@ function setup() {
             liste_mots.push(mot);
         }
     }
+
+    //mots italiens
+     for (const mot of result_it) {
+        let caracteres = mot.split("");
+        let drapeau = true;
+        for (const caractere of caracteres) {
+            if(liste_lettres.indexOf(caractere)==-1)
+            {
+                drapeau = false;
+                break;
+            }
+        }
+        if (drapeau){
+            liste_mots.push(mot);
+        }
+     }
+    
+    //mots anglais
+     for (const mot of result_en) {
+        let caracteres = mot.split("");
+        let drapeau = true;
+        for (const caractere of caracteres) {
+            if(liste_lettres.indexOf(caractere)==-1)
+            {
+                drapeau = false;
+                break;
+            }
+        }
+        if (drapeau){
+            liste_mots.push(mot);
+        }
+     }
+    
+    
     console.log(liste_mots);
 }
 

@@ -2,10 +2,10 @@ var gui = new dat.GUI();
 var params = {
     Download_Image: function () { return save(); },
     Random_Seed: 0,
-    Nb_mots: 25
+    Nb_mots: 20
 };
 gui.add(params, "Random_Seed", 0, 100, 1);
-gui.add(params, "Nb_mots", 0, 100, 1);
+gui.add(params, "Nb_mots", 0, 50, 1);
 gui.add(params, "Download_Image");
 function draw() {
     background("#ebe8d4");
@@ -31,22 +31,56 @@ function draw() {
         text(random(liste_mots), x, y, 225, 60);
     }
 }
-var result;
+var result_fr;
+var result_en;
+var result_it;
 var myFont;
 function preload() {
-    result = loadStrings('assets/liste_francais.txt');
+    result_fr = loadStrings('assets/liste_fr.txt');
+    result_en = loadStrings('assets/liste_en.txt');
+    result_it = loadStrings('assets/liste_en.txt');
     myFont = loadFont('assets/Helvetica.ttf');
 }
 var liste_mots = [];
 var liste_lettres = ["b", "c", "d", "l", "o", "p", "q"];
 function setup() {
     p6_CreateCanvas();
-    for (var _i = 0, result_1 = result; _i < result_1.length; _i++) {
-        var mot = result_1[_i];
+    for (var _i = 0, result_fr_1 = result_fr; _i < result_fr_1.length; _i++) {
+        var mot = result_fr_1[_i];
         var caracteres = mot.split("");
         var drapeau = true;
         for (var _a = 0, caracteres_1 = caracteres; _a < caracteres_1.length; _a++) {
             var caractere = caracteres_1[_a];
+            if (liste_lettres.indexOf(caractere) == -1) {
+                drapeau = false;
+                break;
+            }
+        }
+        if (drapeau) {
+            liste_mots.push(mot);
+        }
+    }
+    for (var _b = 0, result_it_1 = result_it; _b < result_it_1.length; _b++) {
+        var mot = result_it_1[_b];
+        var caracteres = mot.split("");
+        var drapeau = true;
+        for (var _c = 0, caracteres_2 = caracteres; _c < caracteres_2.length; _c++) {
+            var caractere = caracteres_2[_c];
+            if (liste_lettres.indexOf(caractere) == -1) {
+                drapeau = false;
+                break;
+            }
+        }
+        if (drapeau) {
+            liste_mots.push(mot);
+        }
+    }
+    for (var _d = 0, result_en_1 = result_en; _d < result_en_1.length; _d++) {
+        var mot = result_en_1[_d];
+        var caracteres = mot.split("");
+        var drapeau = true;
+        for (var _e = 0, caracteres_3 = caracteres; _e < caracteres_3.length; _e++) {
+            var caractere = caracteres_3[_e];
             if (liste_lettres.indexOf(caractere) == -1) {
                 drapeau = false;
                 break;
