@@ -1,19 +1,41 @@
 var gui = new dat.GUI();
 var params = {
-    Ellipse_Size: 30,
     Download_Image: function () { return save(); },
+    Random_Seed: 0,
+    Nb_mots: 25
 };
-gui.add(params, "Ellipse_Size", 0, 100, 1);
+gui.add(params, "Random_Seed", 0, 100, 1);
+gui.add(params, "Nb_mots", 0, 100, 1);
 gui.add(params, "Download_Image");
 function draw() {
-    background("#495782");
-    fill("white");
-    noStroke();
-    ellipse(mouseX, mouseY, params.Ellipse_Size);
+    background("#ebe8d4");
+    randomSeed(params.Random_Seed);
+    var n = params.Nb_mots;
+    var x = 0;
+    var y = 0;
+    var new_x = 0;
+    var size = [18, 36, 72];
+    var spacing = [0, 1, 2, 3, 4, 5];
+    var modulo = 0;
+    var coeff = 0;
+    for (var i = 0; i < n; i++) {
+        fill('#25231f');
+        textFont(myFont);
+        textAlign(CENTER, CENTER);
+        textSize(random(size));
+        coeff = random(spacing);
+        new_x = x + 225 * coeff;
+        modulo = new_x % 900;
+        y += ((new_x - modulo) / 900) * 60;
+        x = modulo;
+        text(random(liste_mots), x, y, 225, 60);
+    }
 }
 var result;
+var myFont;
 function preload() {
     result = loadStrings('assets/liste_francais.txt');
+    myFont = loadFont('assets/Helvetica.ttf');
 }
 var liste_mots = [];
 var liste_lettres = ["b", "c", "d", "l", "o", "p", "q"];
