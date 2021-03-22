@@ -6,8 +6,10 @@
 // -------------------
 // Option 1 : Canvas with a fixed aspect ratio
 // -------------------
-const __ASPECT_RATIO = 1
-const __MARGIN_SIZE = 25 // in pixels
+const __ASPECT_RATIO = 134 / 99
+
+const __MARGIN_SIZE = 50
+ // in pixels
 
 function __desiredCanvasWidth(): number {
     const windowRatio = windowWidth / windowHeight

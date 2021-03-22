@@ -1,16 +1,86 @@
 var gui = new dat.GUI();
+var guiLettre = gui.addFolder('Lettres');
+var guiLangue = gui.addFolder('Langues');
+var guiCouleur = gui.addFolder('Couleurs');
 var params = {
     Download_Image: function () { return save(); },
     Random_Seed: 0,
-    Nb_mots: 20
+    Nb_mots: 20,
+    Couleur_fond: "#ebe8d4",
+    Couleur_mots: "#25231f",
+    Mots_inexistants: false,
+};
+var paramsLangue = {
+    Italien: true,
+    Français: true,
+    Anglais: true
+};
+var paramsLettre = {
+    a: false,
+    b: true,
+    c: true,
+    d: true,
+    e: false,
+    f: false,
+    g: false,
+    h: false,
+    i: false,
+    j: false,
+    k: false,
+    l: true,
+    m: false,
+    n: false,
+    o: true,
+    p: true,
+    q: true,
+    r: false,
+    s: false,
+    t: false,
+    u: false,
+    v: false,
+    w: false,
+    x: false,
+    y: false,
+    z: false
 };
 gui.add(params, "Random_Seed", 0, 100, 1);
 gui.add(params, "Nb_mots", 0, 50, 1);
+gui.add(params, "Mots_inexistants");
+guiCouleur.addColor(params, "Couleur_mots");
+guiCouleur.addColor(params, "Couleur_fond");
+guiLettre.add(paramsLettre, "a");
+guiLettre.add(paramsLettre, "b");
+guiLettre.add(paramsLettre, "c");
+guiLettre.add(paramsLettre, "d");
+guiLettre.add(paramsLettre, "e");
+guiLettre.add(paramsLettre, "f");
+guiLettre.add(paramsLettre, "g");
+guiLettre.add(paramsLettre, "h");
+guiLettre.add(paramsLettre, "i");
+guiLettre.add(paramsLettre, "j");
+guiLettre.add(paramsLettre, "k");
+guiLettre.add(paramsLettre, "l");
+guiLettre.add(paramsLettre, "m");
+guiLettre.add(paramsLettre, "n");
+guiLettre.add(paramsLettre, "o");
+guiLettre.add(paramsLettre, "p");
+guiLettre.add(paramsLettre, "q");
+guiLettre.add(paramsLettre, "r");
+guiLettre.add(paramsLettre, "s");
+guiLettre.add(paramsLettre, "t");
+guiLettre.add(paramsLettre, "u");
+guiLettre.add(paramsLettre, "v");
+guiLettre.add(paramsLettre, "w");
+guiLettre.add(paramsLettre, "x");
+guiLettre.add(paramsLettre, "y");
+guiLettre.add(paramsLettre, "z");
+guiLangue.add(paramsLangue, "Italien");
+guiLangue.add(paramsLangue, "Français");
+guiLangue.add(paramsLangue, "Anglais");
 gui.add(params, "Download_Image");
 function draw() {
-    background("#ebe8d4");
-    randomSeed(params.Random_Seed);
-    var n = params.Nb_mots;
+    var liste_mots = [];
+    var liste_lettres = [];
     var x = 0;
     var y = 0;
     var new_x = 0;
@@ -18,17 +88,79 @@ function draw() {
     var spacing = [0, 1, 2, 3, 4, 5];
     var modulo = 0;
     var coeff = 0;
-    for (var i = 0; i < n; i++) {
-        fill('#25231f');
+    for (var element in paramsLettre) {
+        if (paramsLettre[element] == true) {
+            liste_lettres.push(element);
+        }
+    }
+    var allWords = [];
+    if (paramsLangue.Anglais == true) {
+        allWords = allWords.concat(result_en);
+    }
+    if (paramsLangue.Français == true) {
+        allWords = allWords.concat(result_fr);
+    }
+    if (paramsLangue.Italien == true) {
+        allWords = allWords.concat(result_it);
+    }
+    console.log(allWords);
+    liste_mots = allWords.filter(function (mot) { return !mot.split("").some(function (char) { return !liste_lettres.includes(char); }); });
+    if (params.Mots_inexistants == true) {
+        var chaineMots = "";
+        var objNgramme = {};
+        var debut = [];
+        var ordre = 3;
+        var nbreLettreMax = 10;
+        for (var i = 0; i < liste_mots.length; i++) {
+            var lettres = liste_mots[i].substring(0, ordre);
+            if (lettres.length == ordre) {
+                debut.push(lettres);
+            }
+        }
+        for (var i = 0; i < liste_mots.length; i++) {
+            chaineMots = chaineMots + liste_mots[i] + " ";
+        }
+        for (var i = 0; i < chaineMots.length; i++) {
+            var ngramme = chaineMots.substring(i, i + ordre);
+            if (!objNgramme[ngramme]) {
+                objNgramme[ngramme] = [];
+                objNgramme[ngramme].push(chaineMots.charAt(i + ordre));
+            }
+            else {
+                objNgramme[ngramme].push(chaineMots.charAt(i + ordre));
+            }
+        }
+    }
+    background(params.Couleur_fond);
+    randomSeed(params.Random_Seed);
+    var n = params.Nb_mots;
+    for (var i = 0; i < n && y < height; i++) {
+        fill(params.Couleur_mots);
         textFont(myFont);
         textAlign(CENTER, CENTER);
         textSize(random(size));
         coeff = random(spacing);
-        new_x = x + 225 * coeff;
-        modulo = new_x % 900;
-        y += ((new_x - modulo) / 900) * 60;
+        new_x = x + width / 4 * coeff;
+        modulo = new_x % width;
+        y += ((new_x - modulo) / width) * height / 14;
         x = modulo;
-        text(random(liste_mots), x, y, 225, 60);
+        if (params.Mots_inexistants == true) {
+            var ngrammCourant = random(debut);
+            var resultat = ngrammCourant;
+            for (i = 0; i < nbreLettreMax; i++) {
+                var possible = objNgramme[ngrammCourant];
+                var prochain = random(possible);
+                if (prochain == " ") {
+                    break;
+                }
+                resultat = resultat + prochain;
+                ngrammCourant = resultat.substring(resultat.length - ordre, resultat.length);
+            }
+            text(resultat, x, y, width / 4, height / 14);
+        }
+        if (params.Mots_inexistants == false) {
+            text(random(liste_mots), x, y, width / 4, height / 14);
+        }
     }
 }
 var result_fr;
@@ -41,62 +173,14 @@ function preload() {
     result_it = loadStrings('assets/liste_en.txt');
     myFont = loadFont('assets/Helvetica.ttf');
 }
-var liste_mots = [];
-var liste_lettres = ["b", "c", "d", "l", "o", "p", "q"];
 function setup() {
     p6_CreateCanvas();
-    for (var _i = 0, result_fr_1 = result_fr; _i < result_fr_1.length; _i++) {
-        var mot = result_fr_1[_i];
-        var caracteres = mot.split("");
-        var drapeau = true;
-        for (var _a = 0, caracteres_1 = caracteres; _a < caracteres_1.length; _a++) {
-            var caractere = caracteres_1[_a];
-            if (liste_lettres.indexOf(caractere) == -1) {
-                drapeau = false;
-                break;
-            }
-        }
-        if (drapeau) {
-            liste_mots.push(mot);
-        }
-    }
-    for (var _b = 0, result_it_1 = result_it; _b < result_it_1.length; _b++) {
-        var mot = result_it_1[_b];
-        var caracteres = mot.split("");
-        var drapeau = true;
-        for (var _c = 0, caracteres_2 = caracteres; _c < caracteres_2.length; _c++) {
-            var caractere = caracteres_2[_c];
-            if (liste_lettres.indexOf(caractere) == -1) {
-                drapeau = false;
-                break;
-            }
-        }
-        if (drapeau) {
-            liste_mots.push(mot);
-        }
-    }
-    for (var _d = 0, result_en_1 = result_en; _d < result_en_1.length; _d++) {
-        var mot = result_en_1[_d];
-        var caracteres = mot.split("");
-        var drapeau = true;
-        for (var _e = 0, caracteres_3 = caracteres; _e < caracteres_3.length; _e++) {
-            var caractere = caracteres_3[_e];
-            if (liste_lettres.indexOf(caractere) == -1) {
-                drapeau = false;
-                break;
-            }
-        }
-        if (drapeau) {
-            liste_mots.push(mot);
-        }
-    }
-    console.log(liste_mots);
 }
 function windowResized() {
     p6_ResizeCanvas();
 }
-var __ASPECT_RATIO = 1;
-var __MARGIN_SIZE = 25;
+var __ASPECT_RATIO = 134 / 99;
+var __MARGIN_SIZE = 50;
 function __desiredCanvasWidth() {
     var windowRatio = windowWidth / windowHeight;
     if (__ASPECT_RATIO > windowRatio) {
