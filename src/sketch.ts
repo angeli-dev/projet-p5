@@ -8,6 +8,7 @@ const guiLettre = gui.addFolder('Lettres');
 const guiLangue = gui.addFolder('Langues');
 const guiCouleur = gui.addFolder('Couleurs');
 const guiGrille = gui.addFolder('Grille');
+const guiMarkov = gui.addFolder('Caractéristiques des mots inventés');
 
 const params = {
     Download_Image: () => save(),
@@ -15,12 +16,17 @@ const params = {
     Nb_mots: 20,
     Couleur_fond: "#ebe8d4",
     Couleur_mots: "#25231f",
-    Mots_inexistants: false
+    Mots_inventes: true
 };
 const paramsGrille = {
     Divisions_Horizontales: 4,
     Divisions_Verticales: 15
 };
+const paramsMarkov = {
+    nbreLettreMax: 10,
+    ordre: 3
+};
+
 const paramsLangue = {
     Italien: true,
     Français: true,
@@ -58,10 +64,13 @@ const paramsLettre = {
 
 gui.add(params, "Random_Seed", 0, 100, 1);
 gui.add(params, "Nb_mots", 0, 100, 1);
-gui.add(params, "Mots_inexistants");
+gui.add(params, "Mots_inventes");
 
 guiGrille.add(paramsGrille, "Divisions_Horizontales", 0, 20, 1);
 guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 20, 1);
+
+guiMarkov.add(paramsMarkov, "nbreLettreMax", 0, 20, 1);
+guiMarkov.add(paramsMarkov, "ordre", 0, 10, 1);
 
 guiCouleur.addColor(params, "Couleur_mots");
 guiCouleur.addColor(params, "Couleur_fond");
@@ -119,8 +128,8 @@ function draw() {
     //let new_x = 0;
     //let modulo = 0;
     //let coeff = 0;
-    let ordre=3;
-    let nbreLettreMax = 10;
+    let ordre=paramsMarkov.ordre;
+    let nbreLettreMax = paramsMarkov.nbreLettreMax;
     let chaineMots="";
     let objNgramme={};
     let debut = [];
@@ -168,7 +177,7 @@ function draw() {
     liste_mots = allWords.filter(mot => !mot.split("").some(char => !liste_lettres.includes(char)));
 
     //chaines de Markov
-    if (params.Mots_inexistants == true)
+    if (params.Mots_inventes == true)
     {    
         chainesMarkov(ordre, chaineMots, objNgramme, debut, liste_mots);
     }
@@ -194,12 +203,12 @@ function draw() {
         x = random(tableau_x)*(width/paramsGrille.Divisions_Horizontales);
         y = random(tableau_y)*(height/paramsGrille.Divisions_Verticales);
 
-        if (params.Mots_inexistants == false){
+        if (params.Mots_inventes == false){
             text(random(liste_mots), x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
 
         //creer nouveau mot (Markov)
-        if (params.Mots_inexistants == true) {
+        if (params.Mots_inventes == true) {
             const mot= createWord(debut, objNgramme, ordre, nbreLettreMax);
             text(mot, x, y, width/paramsGrille.Divisions_Horizontales, height/paramsGrille.Divisions_Verticales);
         }  
@@ -245,7 +254,8 @@ function chainesMarkov(ordre, chaineMots, objNgramme, debut, liste_mots) {
             let ngramme=chaineMots.substring(i,i+ordre)
             if (!objNgramme[ngramme]){
                 objNgramme[ngramme]=[]
-                objNgramme[ngramme].push(chaineMots.charAt(i+ordre));
+                objNgramme[ngramme].push(chaineMots.charAt(i + ordre));
+                //chaineMots.charAt(i) permet de récupérer le caractère situé en position i dans la chaine de caractères "chaineMots"
             }
             else {
                 objNgramme[ngramme].push(chaineMots.charAt(i+ordre));

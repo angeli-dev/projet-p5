@@ -3,17 +3,22 @@ var guiLettre = gui.addFolder('Lettres');
 var guiLangue = gui.addFolder('Langues');
 var guiCouleur = gui.addFolder('Couleurs');
 var guiGrille = gui.addFolder('Grille');
+var guiMarkov = gui.addFolder('Caractéristiques des mots inventés');
 var params = {
     Download_Image: function () { return save(); },
     Random_Seed: 0,
     Nb_mots: 20,
     Couleur_fond: "#ebe8d4",
     Couleur_mots: "#25231f",
-    Mots_inexistants: false
+    Mots_inventes: true
 };
 var paramsGrille = {
     Divisions_Horizontales: 4,
     Divisions_Verticales: 15
+};
+var paramsMarkov = {
+    nbreLettreMax: 10,
+    ordre: 3
 };
 var paramsLangue = {
     Italien: true,
@@ -51,9 +56,11 @@ var paramsLettre = {
 };
 gui.add(params, "Random_Seed", 0, 100, 1);
 gui.add(params, "Nb_mots", 0, 100, 1);
-gui.add(params, "Mots_inexistants");
+gui.add(params, "Mots_inventes");
 guiGrille.add(paramsGrille, "Divisions_Horizontales", 0, 20, 1);
 guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 20, 1);
+guiMarkov.add(paramsMarkov, "nbreLettreMax", 0, 20, 1);
+guiMarkov.add(paramsMarkov, "ordre", 0, 10, 1);
 guiCouleur.addColor(params, "Couleur_mots");
 guiCouleur.addColor(params, "Couleur_fond");
 guiLettre.add(paramsLettre, "a");
@@ -96,8 +103,8 @@ function draw() {
     var tableau_x = [];
     var tableau_y = [];
     var size = [18, 36, 72];
-    var ordre = 3;
-    var nbreLettreMax = 10;
+    var ordre = paramsMarkov.ordre;
+    var nbreLettreMax = paramsMarkov.nbreLettreMax;
     var chaineMots = "";
     var objNgramme = {};
     var debut = [];
@@ -126,7 +133,7 @@ function draw() {
         allWords = allWords.concat(result_de);
     }
     liste_mots = allWords.filter(function (mot) { return !mot.split("").some(function (char) { return !liste_lettres.includes(char); }); });
-    if (params.Mots_inexistants == true) {
+    if (params.Mots_inventes == true) {
         chainesMarkov(ordre, chaineMots, objNgramme, debut, liste_mots);
     }
     background(params.Couleur_fond);
@@ -138,10 +145,10 @@ function draw() {
         textSize(random(size));
         x = random(tableau_x) * (width / paramsGrille.Divisions_Horizontales);
         y = random(tableau_y) * (height / paramsGrille.Divisions_Verticales);
-        if (params.Mots_inexistants == false) {
+        if (params.Mots_inventes == false) {
             text(random(liste_mots), x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
-        if (params.Mots_inexistants == true) {
+        if (params.Mots_inventes == true) {
             var mot = createWord(debut, objNgramme, ordre, nbreLettreMax);
             text(mot, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
