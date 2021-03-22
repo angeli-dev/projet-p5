@@ -77,57 +77,13 @@ let liste_lettres = ["b","c","d","l","o","p","q"];
 function setup() {
     p6_CreateCanvas();
 
-    //créer liste de mots conrtenant les caractères
+    // concatenation des mots
+    const allWords = result_fr.concat(result_en).concat(result_it);
 
-    //mots français
-    for (const mot of result_fr) {
-        let caracteres = mot.split("");
-        let drapeau = true;
-        for (const caractere of caracteres) {
-            if(liste_lettres.indexOf(caractere)==-1)
-            {
-                drapeau = false;
-                break;
-            }
-        }
-        if (drapeau){
-            liste_mots.push(mot);
-        }
-    }
+    // filtrage des mots
+    // pour chaque mot, on ne récupère pas les mots (filter) dont l'une des lettres (some) n'est pas dans la liste liste_lettres (includes)
+    liste_mots = allWords.filter(mot => !mot.split("").some(char => !liste_lettres.includes(char));
 
-    //mots italiens
-     for (const mot of result_it) {
-        let caracteres = mot.split("");
-        let drapeau = true;
-        for (const caractere of caracteres) {
-            if(liste_lettres.indexOf(caractere)==-1)
-            {
-                drapeau = false;
-                break;
-            }
-        }
-        if (drapeau){
-            liste_mots.push(mot);
-        }
-     }
-    
-    //mots anglais
-     for (const mot of result_en) {
-        let caracteres = mot.split("");
-        let drapeau = true;
-        for (const caractere of caracteres) {
-            if(liste_lettres.indexOf(caractere)==-1)
-            {
-                drapeau = false;
-                break;
-            }
-        }
-        if (drapeau){
-            liste_mots.push(mot);
-        }
-     }
-    
-    
     console.log(liste_mots);
 }
 
