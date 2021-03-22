@@ -16,7 +16,7 @@ const params = {
     Nb_mots: 20,
     Couleur_fond: "#ebe8d4",
     Couleur_mots: "#25231f",
-    Mots_inventes: true
+    Mots_inventes: false
 };
 const paramsGrille = {
     Divisions_Horizontales: 4,
