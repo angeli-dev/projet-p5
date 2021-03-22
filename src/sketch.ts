@@ -2,12 +2,12 @@
 //  Parameters and UI
 // -------------------
 
-const gui = new dat.GUI()
+const gui = new dat.GUI();
 
-const guiLettre = gui.addFolder('Lettres')
-const guiLangue =gui.addFolder('Langues')
-const guiCouleur = gui.addFolder('Couleurs')
-const guiGrille = gui.addFolder('Grille')
+const guiLettre = gui.addFolder('Lettres');
+const guiLangue = gui.addFolder('Langues');
+const guiCouleur = gui.addFolder('Couleurs');
+const guiGrille = gui.addFolder('Grille');
 
 const params = {
     Download_Image: () => save(),
@@ -16,17 +16,17 @@ const params = {
     Couleur_fond: "#ebe8d4",
     Couleur_mots: "#25231f",
     Mots_inexistants: false
-}
+};
 const paramsGrille = {
     Divisions_Horizontales: 4,
     Divisions_Verticales: 15
-}
+};
 const paramsLangue = {
     Italien: true,
     Français: true,
     Anglais: true,
     Allemand: true
-}
+};
 const paramsLettre = {
     a: false,
     b: true,
@@ -56,15 +56,15 @@ const paramsLettre = {
     z: false
 }
 
-gui.add(params, "Random_Seed", 0, 100, 1)
-gui.add(params, "Nb_mots", 0, 100, 1)
-gui.add(params, "Mots_inexistants")
+gui.add(params, "Random_Seed", 0, 100, 1);
+gui.add(params, "Nb_mots", 0, 100, 1);
+gui.add(params, "Mots_inexistants");
 
-guiGrille.add(paramsGrille, "Divisions_Horizontales",0, 100, 1)
-guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 100, 1)
+guiGrille.add(paramsGrille, "Divisions_Horizontales", 0, 20, 1);
+guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 20, 1);
 
-guiCouleur.addColor(params, "Couleur_mots")
-guiCouleur.addColor(params, "Couleur_fond")
+guiCouleur.addColor(params, "Couleur_mots");
+guiCouleur.addColor(params, "Couleur_fond");
 
 guiLettre.add(paramsLettre, "a")
 guiLettre.add(paramsLettre, "b");
@@ -98,7 +98,7 @@ guiLangue.add(paramsLangue, "Français");
 guiLangue.add(paramsLangue, "Anglais");
 guiLangue.add(paramsLangue, "Allemand");
 
-gui.add(params, "Download_Image")
+gui.add(params, "Download_Image");
 
 // -------------------
 //       Drawing
@@ -109,22 +109,37 @@ function draw() {
     //initialisation variables
     let liste_mots = [];
     let liste_lettres = [];
+    let n = params.Nb_mots;
     let x = 0;
     let y = 0;
-    let new_x = 0;
-    let size = [18, 36, 72]
-    let spacing = [0, 1, 2, 3, 4, 5]
-    let tableau_x = [0 ,1, 2, 3, 4]
-    let tableau_y = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    let modulo = 0;
-    let coeff = 0
+    let tableau_x = [];
+    let tableau_y = [];
+    let size = [18, 36, 72];
+    //let spacing = [0, 1, 2, 3, 4, 5];
+    //let new_x = 0;
+    //let modulo = 0;
+    //let coeff = 0;
+    let ordre=3;
+    let nbreLettreMax = 10;
+    let chaineMots="";
+    let objNgramme={};
+    let debut = [];
     
 
-
+    //tableau coeff
+    for (let i = 0; i < paramsGrille.Divisions_Horizontales; i++)
+    {
+        tableau_x[i] = i;
+    }
+    for (let i = 0; i < paramsGrille.Divisions_Verticales; i++)
+    {
+        tableau_y[i] = i;
+    }
+    
     //construction liste lettre
     for (const element in paramsLettre) {
         if (paramsLettre[element] == true) {
-            liste_lettres.push(element)
+            liste_lettres.push(element);
         }
     }
 
@@ -146,7 +161,6 @@ function draw() {
     {
         allWords= allWords.concat(result_de);
     }
-    //console.log(allWords)
     
     
     // filtrage des mots
@@ -154,42 +168,15 @@ function draw() {
     liste_mots = allWords.filter(mot => !mot.split("").some(char => !liste_lettres.includes(char)));
 
     //chaines de Markov
-    if (params.Mots_inexistants == true) {
-
-        let chaineMots="";
-        let objNgramme={};
-        let debut=[];
-        let ordre=3;
-        let nbreLettreMax = 10;
-        
-        for (let i=0;i<liste_mots.length;i++){
-            let lettres=liste_mots[i].substring(0,ordre);
-            if (lettres.length==ordre){
-                debut.push(lettres);
-            }
-        }
-        for (let i=0; i<liste_mots.length;i++){
-            chaineMots=chaineMots+liste_mots[i]+" ";
-        }
-        for (let i=0;i<chaineMots.length;i++){
-            let ngramme=chaineMots.substring(i,i+ordre)
-            if (!objNgramme[ngramme]){
-                objNgramme[ngramme]=[]
-                objNgramme[ngramme].push(chaineMots.charAt(i+ordre));
-            }
-            else {
-                objNgramme[ngramme].push(chaineMots.charAt(i+ordre));
-            }
-        }
+    if (params.Mots_inexistants == true)
+    {    
+        chainesMarkov(ordre, chaineMots, objNgramme, debut, liste_mots);
     }
 
+    background(params.Couleur_fond);
+    randomSeed(params.Random_Seed);
     
-    
-    background(params.Couleur_fond)
-    randomSeed(params.Random_Seed)
-    let n = params.Nb_mots;
-    
-    //draw text  façon Marc Adrian
+    //draw text
     for (let i = 0; i < n ; i++) {
         fill(params.Couleur_mots);
         textFont(myFont);
@@ -213,22 +200,9 @@ function draw() {
 
         //creer nouveau mot (Markov)
         if (params.Mots_inexistants == true) {
-           let ngrammCourant=random(debut);
-           let resultat=ngrammCourant
-           for (i=0;i<nbreLettreMax;i++){
-               let possible=objNgramme[ngrammCourant];
-               let prochain=random(possible);
-               if (prochain==" "){
-                   break;
-               }
-               resultat=resultat+prochain;
-               ngrammCourant=resultat.substring(resultat.length-ordre,resultat.length);
-            }
-            text(resultat, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
-        }
-        
-        //console.log(x)
-          
+            const mot= createWord(debut, objNgramme, ordre, nbreLettreMax);
+            text(mot, x, y, width/paramsGrille.Divisions_Horizontales, height/paramsGrille.Divisions_Verticales);
+        }  
     }
 }
 
@@ -254,5 +228,42 @@ function setup() {
 }
 
 function windowResized() {
-    p6_ResizeCanvas()
+    p6_ResizeCanvas();
+}
+
+function chainesMarkov(ordre, chaineMots, objNgramme, debut, liste_mots) {
+    for (let i=0;i<liste_mots.length;i++){
+            let lettres=liste_mots[i].substring(0,ordre);
+            if (lettres.length==ordre){
+                debut.push(lettres);
+            }
+        }
+        for (let i=0; i<liste_mots.length;i++){
+            chaineMots=chaineMots+liste_mots[i]+" ";
+        }
+        for (let i=0;i<chaineMots.length;i++){
+            let ngramme=chaineMots.substring(i,i+ordre)
+            if (!objNgramme[ngramme]){
+                objNgramme[ngramme]=[]
+                objNgramme[ngramme].push(chaineMots.charAt(i+ordre));
+            }
+            else {
+                objNgramme[ngramme].push(chaineMots.charAt(i+ordre));
+            }
+    }
+}
+
+function createWord(debut, objNgramme, ordre, nbreLettreMax) {
+    let ngrammCourant = random(debut);
+    let resultat = ngrammCourant
+    for (let i = 0; i < nbreLettreMax; i++) {
+        let possible = objNgramme[ngrammCourant];
+        let prochain = random(possible);
+        if (prochain == " ") {
+            break;
+        }
+        resultat = resultat + prochain;
+        ngrammCourant = resultat.substring(resultat.length - ordre, resultat.length);
+    }
+    return resultat;
 }

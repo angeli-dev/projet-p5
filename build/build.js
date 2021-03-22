@@ -52,8 +52,8 @@ var paramsLettre = {
 gui.add(params, "Random_Seed", 0, 100, 1);
 gui.add(params, "Nb_mots", 0, 100, 1);
 gui.add(params, "Mots_inexistants");
-guiGrille.add(paramsGrille, "Divisions_Horizontales", 0, 100, 1);
-guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 100, 1);
+guiGrille.add(paramsGrille, "Divisions_Horizontales", 0, 20, 1);
+guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 20, 1);
 guiCouleur.addColor(params, "Couleur_mots");
 guiCouleur.addColor(params, "Couleur_fond");
 guiLettre.add(paramsLettre, "a");
@@ -90,15 +90,23 @@ gui.add(params, "Download_Image");
 function draw() {
     var liste_mots = [];
     var liste_lettres = [];
+    var n = params.Nb_mots;
     var x = 0;
     var y = 0;
-    var new_x = 0;
+    var tableau_x = [];
+    var tableau_y = [];
     var size = [18, 36, 72];
-    var spacing = [0, 1, 2, 3, 4, 5];
-    var tableau_x = [0, 1, 2, 3, 4];
-    var tableau_y = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-    var modulo = 0;
-    var coeff = 0;
+    var ordre = 3;
+    var nbreLettreMax = 10;
+    var chaineMots = "";
+    var objNgramme = {};
+    var debut = [];
+    for (var i = 0; i < paramsGrille.Divisions_Horizontales; i++) {
+        tableau_x[i] = i;
+    }
+    for (var i = 0; i < paramsGrille.Divisions_Verticales; i++) {
+        tableau_y[i] = i;
+    }
     for (var element in paramsLettre) {
         if (paramsLettre[element] == true) {
             liste_lettres.push(element);
@@ -119,34 +127,10 @@ function draw() {
     }
     liste_mots = allWords.filter(function (mot) { return !mot.split("").some(function (char) { return !liste_lettres.includes(char); }); });
     if (params.Mots_inexistants == true) {
-        var chaineMots = "";
-        var objNgramme = {};
-        var debut = [];
-        var ordre = 3;
-        var nbreLettreMax = 10;
-        for (var i = 0; i < liste_mots.length; i++) {
-            var lettres = liste_mots[i].substring(0, ordre);
-            if (lettres.length == ordre) {
-                debut.push(lettres);
-            }
-        }
-        for (var i = 0; i < liste_mots.length; i++) {
-            chaineMots = chaineMots + liste_mots[i] + " ";
-        }
-        for (var i = 0; i < chaineMots.length; i++) {
-            var ngramme = chaineMots.substring(i, i + ordre);
-            if (!objNgramme[ngramme]) {
-                objNgramme[ngramme] = [];
-                objNgramme[ngramme].push(chaineMots.charAt(i + ordre));
-            }
-            else {
-                objNgramme[ngramme].push(chaineMots.charAt(i + ordre));
-            }
-        }
+        chainesMarkov(ordre, chaineMots, objNgramme, debut, liste_mots);
     }
     background(params.Couleur_fond);
     randomSeed(params.Random_Seed);
-    var n = params.Nb_mots;
     for (var i = 0; i < n; i++) {
         fill(params.Couleur_mots);
         textFont(myFont);
@@ -158,18 +142,8 @@ function draw() {
             text(random(liste_mots), x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
         if (params.Mots_inexistants == true) {
-            var ngrammCourant = random(debut);
-            var resultat = ngrammCourant;
-            for (i = 0; i < nbreLettreMax; i++) {
-                var possible = objNgramme[ngrammCourant];
-                var prochain = random(possible);
-                if (prochain == " ") {
-                    break;
-                }
-                resultat = resultat + prochain;
-                ngrammCourant = resultat.substring(resultat.length - ordre, resultat.length);
-            }
-            text(resultat, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
+            var mot = createWord(debut, objNgramme, ordre, nbreLettreMax);
+            text(mot, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
     }
 }
@@ -190,6 +164,41 @@ function setup() {
 }
 function windowResized() {
     p6_ResizeCanvas();
+}
+function chainesMarkov(ordre, chaineMots, objNgramme, debut, liste_mots) {
+    for (var i = 0; i < liste_mots.length; i++) {
+        var lettres = liste_mots[i].substring(0, ordre);
+        if (lettres.length == ordre) {
+            debut.push(lettres);
+        }
+    }
+    for (var i = 0; i < liste_mots.length; i++) {
+        chaineMots = chaineMots + liste_mots[i] + " ";
+    }
+    for (var i = 0; i < chaineMots.length; i++) {
+        var ngramme = chaineMots.substring(i, i + ordre);
+        if (!objNgramme[ngramme]) {
+            objNgramme[ngramme] = [];
+            objNgramme[ngramme].push(chaineMots.charAt(i + ordre));
+        }
+        else {
+            objNgramme[ngramme].push(chaineMots.charAt(i + ordre));
+        }
+    }
+}
+function createWord(debut, objNgramme, ordre, nbreLettreMax) {
+    var ngrammCourant = random(debut);
+    var resultat = ngrammCourant;
+    for (var i = 0; i < nbreLettreMax; i++) {
+        var possible = objNgramme[ngrammCourant];
+        var prochain = random(possible);
+        if (prochain == " ") {
+            break;
+        }
+        resultat = resultat + prochain;
+        ngrammCourant = resultat.substring(resultat.length - ordre, resultat.length);
+    }
+    return resultat;
 }
 var __ASPECT_RATIO = 134 / 99;
 var __MARGIN_SIZE = 50;
