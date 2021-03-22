@@ -7,6 +7,7 @@ const gui = new dat.GUI()
 const guiLettre = gui.addFolder('Lettres')
 const guiLangue =gui.addFolder('Langues')
 const guiCouleur = gui.addFolder('Couleurs')
+const guiGrille = gui.addFolder('Grille')
 
 const params = {
     Download_Image: () => save(),
@@ -16,10 +17,15 @@ const params = {
     Couleur_mots: "#25231f",
     Mots_inexistants: false,
 }
+const paramsGrille = {
+    Divisions_Horizontales: 4,
+    Divisions_Verticales: 15
+}
 const paramsLangue = {
     Italien: true,
     Français: true,
-    Anglais: true
+    Anglais: true,
+    Allemand: true
 }
 const paramsLettre = {
     a: false,
@@ -51,8 +57,11 @@ const paramsLettre = {
 }
 
 gui.add(params, "Random_Seed", 0, 100, 1)
-gui.add(params, "Nb_mots", 0, 50, 1)
+gui.add(params, "Nb_mots", 0, 100, 1)
 gui.add(params, "Mots_inexistants")
+
+guiGrille.add(paramsGrille, "Divisions_Horizontales",0, 100, 1)
+guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 100, 1)
 
 guiCouleur.addColor(params, "Couleur_mots")
 guiCouleur.addColor(params, "Couleur_fond")
@@ -87,6 +96,7 @@ guiLettre.add(paramsLettre, "z");
 guiLangue.add(paramsLangue, "Italien");
 guiLangue.add(paramsLangue, "Français");
 guiLangue.add(paramsLangue, "Anglais");
+guiLangue.add(paramsLangue, "Allemand");
 
 gui.add(params, "Download_Image")
 
@@ -104,6 +114,8 @@ function draw() {
     let new_x = 0;
     let size = [18, 36, 72]
     let spacing = [0, 1, 2, 3, 4, 5]
+    let tableau_x = [0 ,1, 2, 3, 4]
+    let tableau_y = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     let modulo = 0;
     let coeff = 0
     
@@ -129,6 +141,10 @@ function draw() {
     if (paramsLangue.Italien == true)
     {
         allWords= allWords.concat(result_it);
+    }
+    if (paramsLangue.Allemand == true)
+    {
+        allWords= allWords.concat(result_de);
     }
     //console.log(allWords)
     
@@ -174,20 +190,25 @@ function draw() {
     let n = params.Nb_mots;
     
     //draw text  façon Marc Adrian
-    for (let i = 0; i < n && y < height; i++) {
+    for (let i = 0; i < n ; i++) {
         fill(params.Couleur_mots);
         textFont(myFont);
         textAlign(CENTER, CENTER);
         textSize(random(size));
         
-        coeff = random(spacing)
-        new_x = x + (width / 4) * coeff;
-        modulo = new_x % width;
-        y += ((new_x - modulo) / width) * height / 15;
-        x = modulo;
+        //méthode Mark Adrian
+        //coeff = random(spacing)
+        //new_x = x + (width / 4) * coeff;
+        //modulo = new_x % width;
+        //y += ((new_x - modulo) / width) * height / 15;
+        //x = modulo;
+
+        //Méthode plus simple
+        x = random(tableau_x)*(width/paramsGrille.Divisions_Horizontales);
+        y = random(tableau_y)*(height/paramsGrille.Divisions_Verticales);
 
         if (params.Mots_inexistants == false){
-            text(random(liste_mots), x, y, width / 4, height / 15);
+            text(random(liste_mots), x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
 
         //creer nouveau mot (Markov)
@@ -203,10 +224,10 @@ function draw() {
                resultat=resultat+prochain;
                ngrammCourant=resultat.substring(resultat.length-ordre,resultat.length);
             }
-            text(resultat, x, y, width / 4, height / 14);
+            text(resultat, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
         
-        console.log(x)
+        //console.log(x)
           
     }
 }
@@ -217,12 +238,14 @@ function draw() {
 let result_fr;
 let result_en;
 let result_it;
+let result_de;
 let myFont;
 
 function preload() {
     result_fr = loadStrings('assets/liste_fr.txt');
     result_en = loadStrings('assets/liste_en.txt');
     result_it = loadStrings('assets/liste_it.txt');
+    result_de = loadStrings('assets/liste_de.txt');
     myFont = loadFont('assets/Helvetica.ttf');
 }
 

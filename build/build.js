@@ -2,6 +2,7 @@ var gui = new dat.GUI();
 var guiLettre = gui.addFolder('Lettres');
 var guiLangue = gui.addFolder('Langues');
 var guiCouleur = gui.addFolder('Couleurs');
+var guiGrille = gui.addFolder('Grille');
 var params = {
     Download_Image: function () { return save(); },
     Random_Seed: 0,
@@ -10,10 +11,15 @@ var params = {
     Couleur_mots: "#25231f",
     Mots_inexistants: false,
 };
+var paramsGrille = {
+    Divisions_Horizontales: 4,
+    Divisions_Verticales: 15
+};
 var paramsLangue = {
     Italien: true,
     Français: true,
-    Anglais: true
+    Anglais: true,
+    Allemand: true
 };
 var paramsLettre = {
     a: false,
@@ -44,8 +50,10 @@ var paramsLettre = {
     z: false
 };
 gui.add(params, "Random_Seed", 0, 100, 1);
-gui.add(params, "Nb_mots", 0, 50, 1);
+gui.add(params, "Nb_mots", 0, 100, 1);
 gui.add(params, "Mots_inexistants");
+guiGrille.add(paramsGrille, "Divisions_Horizontales", 0, 100, 1);
+guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 100, 1);
 guiCouleur.addColor(params, "Couleur_mots");
 guiCouleur.addColor(params, "Couleur_fond");
 guiLettre.add(paramsLettre, "a");
@@ -77,6 +85,7 @@ guiLettre.add(paramsLettre, "z");
 guiLangue.add(paramsLangue, "Italien");
 guiLangue.add(paramsLangue, "Français");
 guiLangue.add(paramsLangue, "Anglais");
+guiLangue.add(paramsLangue, "Allemand");
 gui.add(params, "Download_Image");
 function draw() {
     var liste_mots = [];
@@ -86,6 +95,8 @@ function draw() {
     var new_x = 0;
     var size = [18, 36, 72];
     var spacing = [0, 1, 2, 3, 4, 5];
+    var tableau_x = [0, 1, 2, 3, 4];
+    var tableau_y = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     var modulo = 0;
     var coeff = 0;
     for (var element in paramsLettre) {
@@ -102,6 +113,9 @@ function draw() {
     }
     if (paramsLangue.Italien == true) {
         allWords = allWords.concat(result_it);
+    }
+    if (paramsLangue.Allemand == true) {
+        allWords = allWords.concat(result_de);
     }
     liste_mots = allWords.filter(function (mot) { return !mot.split("").some(function (char) { return !liste_lettres.includes(char); }); });
     if (params.Mots_inexistants == true) {
@@ -133,18 +147,15 @@ function draw() {
     background(params.Couleur_fond);
     randomSeed(params.Random_Seed);
     var n = params.Nb_mots;
-    for (var i = 0; i < n && y < height; i++) {
+    for (var i = 0; i < n; i++) {
         fill(params.Couleur_mots);
         textFont(myFont);
         textAlign(CENTER, CENTER);
         textSize(random(size));
-        coeff = random(spacing);
-        new_x = x + (width / 4) * coeff;
-        modulo = new_x % width;
-        y += ((new_x - modulo) / width) * height / 15;
-        x = modulo;
+        x = random(tableau_x) * (width / paramsGrille.Divisions_Horizontales);
+        y = random(tableau_y) * (height / paramsGrille.Divisions_Verticales);
         if (params.Mots_inexistants == false) {
-            text(random(liste_mots), x, y, width / 4, height / 15);
+            text(random(liste_mots), x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
         if (params.Mots_inexistants == true) {
             var ngrammCourant = random(debut);
@@ -158,19 +169,20 @@ function draw() {
                 resultat = resultat + prochain;
                 ngrammCourant = resultat.substring(resultat.length - ordre, resultat.length);
             }
-            text(resultat, x, y, width / 4, height / 14);
+            text(resultat, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
         }
-        console.log(x);
     }
 }
 var result_fr;
 var result_en;
 var result_it;
+var result_de;
 var myFont;
 function preload() {
     result_fr = loadStrings('assets/liste_fr.txt');
     result_en = loadStrings('assets/liste_en.txt');
     result_it = loadStrings('assets/liste_it.txt');
+    result_de = loadStrings('assets/liste_de.txt');
     myFont = loadFont('assets/Helvetica.ttf');
 }
 function setup() {
