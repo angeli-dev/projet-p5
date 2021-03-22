@@ -3,9 +3,11 @@
 // -------------------
 
 const gui = new dat.GUI()
+
 const guiLettre = gui.addFolder('Lettres')
 const guiLangue =gui.addFolder('Langues')
-const guiCouleur =gui.addFolder('Couleurs')
+const guiCouleur = gui.addFolder('Couleurs')
+
 const params = {
     Download_Image: () => save(),
     Random_Seed: 0,
@@ -51,8 +53,10 @@ const paramsLettre = {
 gui.add(params, "Random_Seed", 0, 100, 1)
 gui.add(params, "Nb_mots", 0, 50, 1)
 gui.add(params, "Mots_inexistants")
+
 guiCouleur.addColor(params, "Couleur_mots")
 guiCouleur.addColor(params, "Couleur_fond")
+
 guiLettre.add(paramsLettre, "a")
 guiLettre.add(paramsLettre, "b");
 guiLettre.add(paramsLettre, "c");
@@ -79,9 +83,11 @@ guiLettre.add(paramsLettre, "w");
 guiLettre.add(paramsLettre, "x");
 guiLettre.add(paramsLettre, "y");
 guiLettre.add(paramsLettre, "z");
+
 guiLangue.add(paramsLangue, "Italien");
 guiLangue.add(paramsLangue, "Français");
 guiLangue.add(paramsLangue, "Anglais");
+
 gui.add(params, "Download_Image")
 
 // -------------------
@@ -89,6 +95,7 @@ gui.add(params, "Download_Image")
 // -------------------
 
 function draw() {
+
     //initialisation variables
     let liste_mots = [];
     let liste_lettres = [];
@@ -123,7 +130,7 @@ function draw() {
     {
         allWords= allWords.concat(result_it);
     }
-    console.log(allWords)
+    //console.log(allWords)
     
     
     // filtrage des mots
@@ -174,14 +181,17 @@ function draw() {
         textSize(random(size));
         
         coeff = random(spacing)
-        new_x = x + width / 4 * coeff;
+        new_x = x + (width / 4) * coeff;
         modulo = new_x % width;
-        y += ((new_x - modulo) / width) * height / 14;
+        y += ((new_x - modulo) / width) * height / 15;
         x = modulo;
+
+        if (params.Mots_inexistants == false){
+            text(random(liste_mots), x, y, width / 4, height / 15);
+        }
 
         //creer nouveau mot (Markov)
         if (params.Mots_inexistants == true) {
-
            let ngrammCourant=random(debut);
            let resultat=ngrammCourant
            for (i=0;i<nbreLettreMax;i++){
@@ -195,14 +205,11 @@ function draw() {
             }
             text(resultat, x, y, width / 4, height / 14);
         }
-        if (params.Mots_inexistants == false){
-            text(random(liste_mots), x, y, width / 4, height / 14);
-        }
+        
+        console.log(x)
           
     }
 }
-
-
 
 // -------------------
 //    Initialization
@@ -215,11 +222,9 @@ let myFont;
 function preload() {
     result_fr = loadStrings('assets/liste_fr.txt');
     result_en = loadStrings('assets/liste_en.txt');
-    result_it = loadStrings('assets/liste_en.txt');
+    result_it = loadStrings('assets/liste_it.txt');
     myFont = loadFont('assets/Helvetica.ttf');
 }
-
-
 
 function setup() {
     p6_CreateCanvas();

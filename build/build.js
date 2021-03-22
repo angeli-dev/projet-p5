@@ -103,7 +103,6 @@ function draw() {
     if (paramsLangue.Italien == true) {
         allWords = allWords.concat(result_it);
     }
-    console.log(allWords);
     liste_mots = allWords.filter(function (mot) { return !mot.split("").some(function (char) { return !liste_lettres.includes(char); }); });
     if (params.Mots_inexistants == true) {
         var chaineMots = "";
@@ -140,10 +139,13 @@ function draw() {
         textAlign(CENTER, CENTER);
         textSize(random(size));
         coeff = random(spacing);
-        new_x = x + width / 4 * coeff;
+        new_x = x + (width / 4) * coeff;
         modulo = new_x % width;
-        y += ((new_x - modulo) / width) * height / 14;
+        y += ((new_x - modulo) / width) * height / 15;
         x = modulo;
+        if (params.Mots_inexistants == false) {
+            text(random(liste_mots), x, y, width / 4, height / 15);
+        }
         if (params.Mots_inexistants == true) {
             var ngrammCourant = random(debut);
             var resultat = ngrammCourant;
@@ -158,9 +160,7 @@ function draw() {
             }
             text(resultat, x, y, width / 4, height / 14);
         }
-        if (params.Mots_inexistants == false) {
-            text(random(liste_mots), x, y, width / 4, height / 14);
-        }
+        console.log(x);
     }
 }
 var result_fr;
@@ -170,7 +170,7 @@ var myFont;
 function preload() {
     result_fr = loadStrings('assets/liste_fr.txt');
     result_en = loadStrings('assets/liste_en.txt');
-    result_it = loadStrings('assets/liste_en.txt');
+    result_it = loadStrings('assets/liste_it.txt');
     myFont = loadFont('assets/Helvetica.ttf');
 }
 function setup() {
