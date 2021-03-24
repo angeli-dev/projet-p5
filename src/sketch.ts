@@ -75,37 +75,11 @@ guiMarkov.add(paramsMarkov, "ordre", 0, 10, 1);
 guiCouleur.addColor(params, "Couleur_mots");
 guiCouleur.addColor(params, "Couleur_fond");
 
-guiLettre.add(paramsLettre, "a")
-guiLettre.add(paramsLettre, "b");
-guiLettre.add(paramsLettre, "c");
-guiLettre.add(paramsLettre, "d");
-guiLettre.add(paramsLettre, "e");
-guiLettre.add(paramsLettre, "f");
-guiLettre.add(paramsLettre, "g");
-guiLettre.add(paramsLettre, "h");
-guiLettre.add(paramsLettre, "i");
-guiLettre.add(paramsLettre, "j");
-guiLettre.add(paramsLettre, "k");
-guiLettre.add(paramsLettre, "l");
-guiLettre.add(paramsLettre, "m");
-guiLettre.add(paramsLettre, "n");
-guiLettre.add(paramsLettre, "o");
-guiLettre.add(paramsLettre, "p");
-guiLettre.add(paramsLettre, "q");
-guiLettre.add(paramsLettre, "r");
-guiLettre.add(paramsLettre, "s");
-guiLettre.add(paramsLettre, "t");
-guiLettre.add(paramsLettre, "u");
-guiLettre.add(paramsLettre, "v");
-guiLettre.add(paramsLettre, "w");
-guiLettre.add(paramsLettre, "x");
-guiLettre.add(paramsLettre, "y");
-guiLettre.add(paramsLettre, "z");
 
-guiLangue.add(paramsLangue, "Italien");
-guiLangue.add(paramsLangue, "Français");
-guiLangue.add(paramsLangue, "Anglais");
-guiLangue.add(paramsLangue, "Allemand");
+for (const key of Object.keys(paramsLettre)) guiLettre.add(paramsLettre, key);
+
+for (const key of Object.keys(paramsLangue)) guiLangue.add(paramsLangue, key);
+
 
 gui.add(params, "Download_Image");
 
@@ -114,44 +88,27 @@ gui.add(params, "Download_Image");
 // -------------------
 
 function draw() {
-
     //initialisation variables
-    let liste_mots = [];
-    let liste_lettres = [];
-    let n = params.Nb_mots;
-    let x = 0;
-    let y = 0;
-    let tableau_x = [];
-    let tableau_y = [];
-    let size = [18, 36, 72];
+    const n = params.Nb_mots;
+    const size = [18, 36, 72];
     //let spacing = [0, 1, 2, 3, 4, 5];
     //let new_x = 0;
     //let modulo = 0;
     //let coeff = 0;
-    let ordre=paramsMarkov.ordre;
-    let nbreLettreMax = paramsMarkov.nbreLettreMax;
-    let chaineMots="";
-    let objNgramme={};
+    const ordre = paramsMarkov.ordre;
+    const nbreLettreMax = paramsMarkov.nbreLettreMax;
+    let chaineMots = "";
+    let objNgramme = {};
     let debut = [];
     
-
     //tableau coeff
-    for (let i = 0; i < paramsGrille.Divisions_Horizontales; i++)
-    {
-        tableau_x[i] = i;
-    }
-    for (let i = 0; i < paramsGrille.Divisions_Verticales; i++)
-    {
-        tableau_y[i] = i;
-    }
+    //ES6 tips using spread operator for creating range array
+    const tableau_x = [...Array(paramsGrille.Divisions_Horizontales).keys()]
+    const tableau_y = [...Array(paramsGrille.Divisions_Verticales).keys()]
     
     //construction liste lettre
-    for (const element in paramsLettre) {
-        if (paramsLettre[element] == true) {
-            liste_lettres.push(element);
-        }
-    }
-
+    const liste_lettres = Object.keys(paramsLettre).filter(key => paramsLettre[key] == true);
+    
     // concatenation des mots
     let allWords=[];
     if (paramsLangue.Anglais == true)
@@ -171,10 +128,9 @@ function draw() {
         allWords= allWords.concat(result_de);
     }
     
-    
     // filtrage des mots
     // pour chaque mot, on ne récupère pas les mots (filter) dont l'une des lettres (some) n'est pas dans la liste liste_lettres (includes)
-    liste_mots = allWords.filter(mot => !mot.split("").some(char => !liste_lettres.includes(char)));
+    const liste_mots = allWords.filter(mot => !mot.split("").some(char => !liste_lettres.includes(char)));
 
     //chaines de Markov
     if (params.Mots_inventes == true)
@@ -200,18 +156,12 @@ function draw() {
         //x = modulo;
 
         //Méthode plus simple
-        x = random(tableau_x)*(width/paramsGrille.Divisions_Horizontales);
-        y = random(tableau_y)*(height/paramsGrille.Divisions_Verticales);
+        const x = random(tableau_x)*(width/paramsGrille.Divisions_Horizontales);
+        const y = random(tableau_y)*(height/paramsGrille.Divisions_Verticales);
 
-        if (params.Mots_inventes == false){
-            text(random(liste_mots), x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales);
-        }
-
-        //creer nouveau mot (Markov)
-        if (params.Mots_inventes == true) {
-            const mot= createWord(debut, objNgramme, ordre, nbreLettreMax);
-            text(mot, x, y, width/paramsGrille.Divisions_Horizontales, height/paramsGrille.Divisions_Verticales);
-        }  
+        // creer nouveau mot (Markov) ou en sélectionne un depuis la liste
+        const mot = params.Mots_inventes ? createWord(debut, objNgramme, ordre, nbreLettreMax) : takeSample(liste_mots);
+        text(mot, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales); 
     }
 }
 
