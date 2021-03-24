@@ -101,11 +101,6 @@ function draw() {
     let objNgramme = {};
     let debut = [];
     
-    //tableau coeff
-    //ES6 tips using spread operator for creating range array
-    const tableau_x = [...Array(paramsGrille.Divisions_Horizontales).keys()]
-    const tableau_y = [...Array(paramsGrille.Divisions_Verticales).keys()]
-    
     //construction liste lettre
     const liste_lettres = Object.keys(paramsLettre).filter(key => paramsLettre[key] == true);
     
@@ -156,11 +151,11 @@ function draw() {
         //x = modulo;
 
         //Méthode plus simple
-        const x = random(tableau_x)*(width/paramsGrille.Divisions_Horizontales);
-        const y = random(tableau_y)*(height/paramsGrille.Divisions_Verticales);
+        const x = floor(random(paramsGrille.Divisions_Horizontales))*(width/paramsGrille.Divisions_Horizontales);
+        const y = floor(random(paramsGrille.Divisions_Verticales))*(height/paramsGrille.Divisions_Verticales);
 
         // creer nouveau mot (Markov) ou en sélectionne un depuis la liste
-        const mot = params.Mots_inventes ? createWord(debut, objNgramme, ordre, nbreLettreMax) : takeSample(liste_mots);
+        const mot = params.Mots_inventes ? createWord(debut, objNgramme, ordre, nbreLettreMax) : random(liste_mots);
         text(mot, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales); 
     }
 }
