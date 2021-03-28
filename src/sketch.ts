@@ -19,8 +19,8 @@ const params = {
     Mots_inventes: false
 };
 const paramsGrille = {
-    Divisions_Horizontales: 4,
-    Divisions_Verticales: 15
+    Nb_colonnes: 4,
+    Nb_lignes: 15
 };
 const paramsMarkov = {
     nbreLettreMax: 10,
@@ -66,8 +66,8 @@ gui.add(params, "Random_Seed", 0, 100, 1);
 gui.add(params, "Nb_mots", 0, 100, 1);
 gui.add(params, "Mots_inventes");
 
-guiGrille.add(paramsGrille, "Divisions_Horizontales", 0, 20, 1);
-guiGrille.add(paramsGrille, "Divisions_Verticales", 0, 20, 1);
+guiGrille.add(paramsGrille, "Nb_colonnes", 0, 20, 1);
+guiGrille.add(paramsGrille, "Nb_lignes", 0, 20, 1);
 
 guiMarkov.add(paramsMarkov, "nbreLettreMax", 0, 20, 1);
 guiMarkov.add(paramsMarkov, "ordre", 0, 10, 1);
@@ -91,10 +91,6 @@ function draw() {
     //initialisation variables
     const n = params.Nb_mots;
     const size = [18, 36, 72];
-    //let spacing = [0, 1, 2, 3, 4, 5];
-    //let new_x = 0;
-    //let modulo = 0;
-    //let coeff = 0;
     const ordre = paramsMarkov.ordre;
     const nbreLettreMax = paramsMarkov.nbreLettreMax;
     let chaineMots = "";
@@ -151,12 +147,12 @@ function draw() {
         //x = modulo;
 
         //Méthode plus simple
-        const x = floor(random(paramsGrille.Divisions_Horizontales))*(width/paramsGrille.Divisions_Horizontales);
-        const y = floor(random(paramsGrille.Divisions_Verticales))*(height/paramsGrille.Divisions_Verticales);
+        const x = floor(random(paramsGrille.Nb_colonnes))*(width/paramsGrille.Nb_colonnes);
+        const y = floor(random(paramsGrille.Nb_lignes))*(height/paramsGrille.Nb_lignes);
 
         // creer nouveau mot (Markov) ou en sélectionne un depuis la liste
         const mot = params.Mots_inventes ? createWord(debut, objNgramme, ordre, nbreLettreMax) : random(liste_mots);
-        text(mot, x, y, width / paramsGrille.Divisions_Horizontales, height / paramsGrille.Divisions_Verticales); 
+        text(mot, x, y, width / paramsGrille.Nb_colonnes, height / paramsGrille.Nb_lignes); 
     }
 }
 
